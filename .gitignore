@@ -2,5 +2,5 @@
 .streamlit/
 
 # Ignorar pycache
-utils/__pycache__/
+**/__pycache__/
 
