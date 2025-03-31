@@ -1,0 +1,6 @@
+# Ignorar arquivos dentro do diretório .streamlit
+.streamlit/
+
+# Ignorar pycache
+utils/__pycache__/
+
