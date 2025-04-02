@@ -5,7 +5,7 @@ import os
 import numpy as np
 from utils.queries import *
 from utils.user import *
-from utils.functions.db_functions import *
+from utils.functions.general_functions import *
 # from workalendar.america import Brazil
 # import openpyxl
 
