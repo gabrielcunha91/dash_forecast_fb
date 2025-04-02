@@ -3,10 +3,9 @@ from streamlit.logger import get_logger
 import pandas as pd
 import os
 import numpy as np
-from datetime import datetime
-import mysql.connector
 from utils.queries import *
 from utils.user import *
+from utils.functions.db_functions import *
 # from workalendar.america import Brazil
 # import openpyxl
 
@@ -41,33 +40,6 @@ def show_login_page():
 
 LOGGER = get_logger(__name__)
 
-def mysql_connection_fb():
-  mysql_config = st.secrets["mysql_fb"]
-
-  conn_fb = mysql.connector.connect(
-        host=mysql_config['host'],
-        port=mysql_config['port'],
-        database=mysql_config['database'],
-        user=mysql_config['username'],
-        password=mysql_config['password']
-    )    
-  return conn_fb
-
-
-def execute_query(query, conn):
-    cursor = conn.cursor()
-    cursor.execute(query)
-
-    # Obter nomes das colunas
-    column_names = [col[0] for col in cursor.description]
-  
-    # Obter resultados
-    result = cursor.fetchall()
-  
-    cursor.close()
-    return result, column_names
-
-
 def casas(connection):
     result, column_names = execute_query(GET_CASAS, connection)
     df_casas = pd.DataFrame(result, columns=column_names)
@@ -80,7 +52,6 @@ def orcamentos(connection):
 
 
 def run():
-
     # Puxando dados
     conn_fb = mysql_connection_fb()
     df_casas = casas(conn_fb)

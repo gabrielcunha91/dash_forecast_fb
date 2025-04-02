@@ -1,7 +1,8 @@
 import streamlit as st
 import pandas as pd
 import datetime
-import calendar
+import streamlit as st
+from utils.functions.date_functions import *
 from utils.functions.general_functions import *
 from utils.queries import *
 from workalendar.america import Brazil
@@ -12,28 +13,18 @@ st.set_page_config(
     layout="wide"
 )
 
+st.title("Dash Forecast")
 
 # Filtrando Data
-today = datetime.datetime.now()
-last_year = today.year - 1
-jan_last_year = datetime.datetime(last_year, 1, 1)
-jan_this_year = datetime.datetime(today.year, 1, 1)
-last_day_of_month = calendar.monthrange(today.year, today.month)[1]
-first_day_this_month_this_year = datetime.datetime(today.year, today.month, 1)
-last_day_this_month_this_year = datetime.datetime(today.year, today.month, last_day_of_month)
-dec_this_year = datetime.datetime(today.year, 12, 31)
-
-## 3 meses atras
-month_sub_3 = today.month - 3
-year = today.year
-
-if month_sub_3 <= 0:
-    # Se o mês resultante for menor ou igual a 0, ajustamos o ano e corrigimos o mês
-    month_sub_3 += 12
-    year -= 1
-
-start_of_three_months_ago = datetime.datetime(year, month_sub_3, 1)
-
+today = get_today()
+last_year = get_last_year(today)
+jan_last_year = get_jan_last_year(last_year)
+jan_this_year = get_jan_this_year(today)
+last_day_of_month = get_last_day_of_month(today)
+first_day_this_month_this_year = get_first_day_this_month_this_year(today)
+last_day_this_month_this_year = get_last_day_this_month_this_year(today)
+dec_this_year = get_dec_this_year(today)
+start_of_three_months_ago = get_start_of_three_months_ago(today)
 
 date_input = st.date_input("Período",
                            (first_day_this_month_this_year, last_day_this_month_this_year),
