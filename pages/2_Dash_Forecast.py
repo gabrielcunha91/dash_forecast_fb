@@ -7,7 +7,7 @@ from utils.queries import *
 from workalendar.america import Brazil
 
 st.set_page_config(
-    page_title="Dash_Forecast",
+    page_title="Dash Forecast",
     page_icon="💰",
     layout="wide"
 )

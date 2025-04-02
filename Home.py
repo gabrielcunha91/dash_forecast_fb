@@ -67,43 +67,43 @@ def execute_query(query, conn):
     cursor.close()
     return result, column_names
 
+
+def casas(connection):
+    result, column_names = execute_query(GET_CASAS, connection)
+    df_casas = pd.DataFrame(result, columns=column_names)
+    return df_casas
+
+def orcamentos(connection):
+    result, column_names = execute_query(GET_ORCAMENTO, connection)
+    df_orcamentos = pd.DataFrame(result, columns=column_names)
+    return df_orcamentos
+
+
 def run():
 
-    ######## Puxando Dados #########
+    # Puxando dados
     conn_fb = mysql_connection_fb()
+    df_casas = casas(conn_fb)
+    df_orcamentos = orcamentos(conn_fb)            
 
-    def casas():
-        result, column_names = execute_query(GET_CASAS, conn_fb)
-        df_casas = pd.DataFrame(result, columns=column_names)   
-
-        return df_casas
-    df_casas = casas()
-
-    def orcamentos():
-        result, column_names = execute_query(GET_ORCAMENTO, conn_fb)
-        df_orcamentos = pd.DataFrame(result, columns=column_names)   
-
-        return df_orcamentos
-    df_orcamentos = orcamentos()            
-
-    ######## Definindo Relatorio ########
+    # Pagina Home
     st.write("# Dash Forecast")
-
     st.markdown(
         """
         Utilize as abas localizadas no lado esquerdo para buscar suas análises.
     """
     ) 
 
+    # Adiciona dataframes ao session_state do Streamlit
     if "df_casas" not in st.session_state:
         st.session_state["df_casas"] = df_casas
-
     if "df_orcamentos" not in st.session_state:
         st.session_state["df_orcamentos"] = df_orcamentos       
                                                
 
 if __name__ == "__main__":
-     ######## Config Pag ##########
+    
+    # Configs da página
     st.set_page_config(
     page_title="Dash Forecast",
     page_icon="💰",
