@@ -40,12 +40,12 @@ def show_login_page():
 
 LOGGER = get_logger(__name__)
 
-def casas(connection):
+def get_casas(connection):
     result, column_names = execute_query(GET_CASAS, connection)
     df_casas = pd.DataFrame(result, columns=column_names)
     return df_casas
 
-def orcamentos(connection):
+def get_orcamentos(connection):
     result, column_names = execute_query(GET_ORCAMENTO, connection)
     df_orcamentos = pd.DataFrame(result, columns=column_names)
     return df_orcamentos
@@ -54,8 +54,8 @@ def orcamentos(connection):
 def run():
     # Puxando dados
     conn_fb = mysql_connection_fb()
-    df_casas = casas(conn_fb)
-    df_orcamentos = orcamentos(conn_fb)            
+    df_casas = get_casas(conn_fb)
+    df_orcamentos = get_orcamentos(conn_fb)            
 
     # Pagina Home
     st.write("# Dash Forecast")

@@ -35,6 +35,12 @@ def execute_query(query, conn):
     return result, column_names
 
 
+def dataframe_query(query):
+  resultado, nomeColunas = execute_query(query)
+  dataframe = pd.DataFrame(resultado, columns=nomeColunas)
+  return dataframe
+
+
 def export_to_excel(df, sheet_name, excel_filename):
   if os.path.exists(excel_filename):
     wb = openpyxl.load_workbook(excel_filename)

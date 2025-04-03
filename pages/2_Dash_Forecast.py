@@ -56,21 +56,28 @@ st.write('ID da casa selecionada:', id_casa)
 st.divider()
 
 ### Definindo Bases ##
-st.subheader("Orcamentos")
-df_orcamentos = st.session_state["df_orcamentos"]
-df_orcamentos_filtrado = df_orcamentos[df_orcamentos['ID_Casa'] == id_casa]
-df_orcamentos_filtrado = df_orcamentos_filtrado[['Casa', 'Class_1', 'Class_2', 'Mes_Ref', 'Ano_Ref', 'Orcamento']]
-df_orcamentos_filtrado = format_columns_brazilian(df_orcamentos_filtrado, ['Orcamento'])
-df_orcamentos_filtrado = df_orcamentos_filtrado[(df_orcamentos_filtrado['Ano_Ref'] >= start_date_year) & (df_orcamentos_filtrado['Ano_Ref'] <= end_date_year)]
-df_orcamentos_filtrado = df_orcamentos_filtrado[(df_orcamentos_filtrado['Mes_Ref'] >= start_date_month) & (df_orcamentos_filtrado['Mes_Ref'] <= end_date_month)]
 
 
-st.dataframe(df_orcamentos_filtrado, 
-            #  column_config={
-            #      "Casa"
-            #  },
-             use_container_width=True, hide_index=True)
+# # st.subheader("Orcamentos")
+# df_orcamentos = st.session_state["df_orcamentos"]
+# df_orcamentos_filtrado = df_orcamentos[df_orcamentos['ID_Casa'] == id_casa]
+# df_orcamentos_filtrado = df_orcamentos_filtrado[['Casa', 'Class_1', 'Class_2', 'Mes_Ref', 'Ano_Ref', 'Orcamento']]
+# df_orcamentos_filtrado = format_columns_brazilian(df_orcamentos_filtrado, ['Orcamento'])
+# df_orcamentos_filtrado = df_orcamentos_filtrado[(df_orcamentos_filtrado['Ano_Ref'] >= start_date_year) & (df_orcamentos_filtrado['Ano_Ref'] <= end_date_year)]
+# df_orcamentos_filtrado = df_orcamentos_filtrado[(df_orcamentos_filtrado['Mes_Ref'] >= start_date_month) & (df_orcamentos_filtrado['Mes_Ref'] <= end_date_month)]
 
-st.divider()
 
+# st.dataframe(df_orcamentos_filtrado, 
+#              use_container_width=True, hide_index=True)
+
+# st.divider()
+
+tab1, tab2, tab3 = st.tabs(["Ticket Médio", "Atendimentos", "Faturamento"])
+
+with tab1:
+    st.header("Ticket Médio")
+with tab2:
+    st.header("Atendimentos")
+with tab3:
+    st.header("Faturamento")
 
