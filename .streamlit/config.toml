@@ -1,0 +1,6 @@
+[server]
+
+mainModule = "Home.py"
+
+[theme]
+base = "light"
