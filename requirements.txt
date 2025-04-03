@@ -2,7 +2,7 @@ altair
 numpy
 pandas
 pydeck
-streamlit==latest
+streamlit==1.39.0
 mysql-connector-python
 workalendar
 openpyxl
