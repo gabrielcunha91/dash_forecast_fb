@@ -38,24 +38,21 @@ def show_login_page():
     userPassword = st.text_input(label="Password", value="", placeholder="Senha",type="password", label_visibility="collapsed")
     st.button("Login", on_click=handle_login, args=(userName, userPassword))
 
-LOGGER = get_logger(__name__)
-
-def get_casas(connection):
-    result, column_names = execute_query(GET_CASAS, connection)
+def get_casas():
+    result, column_names = execute_query(GET_CASAS)
     df_casas = pd.DataFrame(result, columns=column_names)
     return df_casas
 
-def get_orcamentos(connection):
-    result, column_names = execute_query(GET_ORCAMENTO, connection)
+def get_orcamentos():
+    result, column_names = execute_query(GET_ORCAMENTO)
     df_orcamentos = pd.DataFrame(result, columns=column_names)
     return df_orcamentos
 
 
 def run():
     # Puxando dados
-    conn_fb = mysql_connection_fb()
-    df_casas = get_casas(conn_fb)
-    df_orcamentos = get_orcamentos(conn_fb)            
+    df_casas = get_casas()
+    df_orcamentos = get_orcamentos()   
 
     # Pagina Home
     st.write("# Dash Forecast")
@@ -69,7 +66,7 @@ def run():
     if "df_casas" not in st.session_state:
         st.session_state["df_casas"] = df_casas
     if "df_orcamentos" not in st.session_state:
-        st.session_state["df_orcamentos"] = df_orcamentos       
+        st.session_state["df_orcamentos"] = df_orcamentos
                                                
 
 if __name__ == "__main__":

@@ -1,11 +1,13 @@
 import streamlit as st
 import pandas as pd
 import datetime
-import streamlit as st
+from workalendar.america import Brazil
+from utils.components import *
 from utils.functions.date_functions import *
 from utils.functions.general_functions import *
+from utils.functions.dash_forecast import *
 from utils.queries import *
-from workalendar.america import Brazil
+
 
 st.set_page_config(
     page_title="Dash Forecast",
@@ -13,47 +15,71 @@ st.set_page_config(
     layout="wide"
 )
 
+if 'loggedIn' not in st.session_state or not st.session_state['loggedIn']:
+  st.switch_page('Home.py')
+
 st.title("Dash Forecast")
 
-# Filtrando Data
-today = get_today()
-last_year = get_last_year(today)
-jan_last_year = get_jan_last_year(last_year)
-jan_this_year = get_jan_this_year(today)
-last_day_of_month = get_last_day_of_month(today)
-first_day_this_month_this_year = get_first_day_this_month_this_year(today)
-last_day_this_month_this_year = get_last_day_this_month_this_year(today)
-dec_this_year = get_dec_this_year(today)
-start_of_three_months_ago = get_start_of_three_months_ago(today)
+# Seleção do período
+date_input = input_periodo_datas("periodo_datas_pag_2")
 
-date_input = st.date_input("Período",
-                           (first_day_this_month_this_year, last_day_this_month_this_year),
-                           min_value=jan_this_year,
-                           format="DD/MM/YYYY"
-                           )
+# Seleção da casa
+id_casa, casa = input_selecao_casas("input_casa_pag_2")
 
-# Convertendo as datas do "date_input" para datetime
-start_date = pd.to_datetime(date_input[0])
-end_date = pd.to_datetime(date_input[1])
 
-start_date_year = start_date.year
-start_date_month = start_date.month
-end_date_year = end_date.year
-end_date_month = end_date.month
+if len(date_input) == 2:
 
-# Filtrando casas
-df_casas = st.session_state["df_casas"]
-casas = df_casas['Casa'].tolist()
-casa = st.selectbox("Casa", casas)
+    # Convertendo as datas do "date_input" para datetime
+    start_date = pd.to_datetime(date_input[0])
+    end_date = pd.to_datetime(date_input[1])
+    start_date_year = start_date.year
+    start_date_month = start_date.month
+    end_date_year = end_date.year
+    end_date_month = end_date.month
 
-# Definindo um dicionário para mapear nomes de casas a IDs de casas
-mapeamento_lojas = dict(zip(df_casas["Casa"], df_casas["ID_Casa"]))
+    # Obtém dataframe principal
+    df_projetado_e_zig = GET_DF_TICKET_BASE_E_ZIGPAY(start_date, end_date)
 
-# Obtendo o ID da casa selecionada
-id_casa = mapeamento_lojas[casa]
-st.write('ID da casa selecionada:', id_casa)
+    # Substitui valores None por 0
+    df_projetado_e_zig = df_projetado_e_zig.fillna(0)
+
+    # Formata tipo de dados (int e float)
+    df_projetado_e_zig['Ticket_Base'] = df_projetado_e_zig['Ticket_Base'].astype(float)
+    df_projetado_e_zig['Atendimentos_Base'] = df_projetado_e_zig['Atendimentos_Base'].astype(int)
+    df_projetado_e_zig['Ticket_Zig'] = df_projetado_e_zig['Ticket_Zig'].astype(float)
+    df_projetado_e_zig['Atendimentos_Zig'] = df_projetado_e_zig['Atendimentos_Zig'].astype(int)
+    
+    # Filtrando dataframe pela casa
+    df_projetado_e_zig = df_filtrar_casa(df_projetado_e_zig, id_casa)
+
+
+    st.divider()
+
+
+    tab1, tab2, tab3 = st.tabs(["Ticket Médio", "Atendimentos", "Faturamento"])
+    with tab1:
+        st.header("Ticket Médio")
+        df_ticket = df_estimativa_ticket(df_projetado_e_zig)
+        st.dataframe(df_ticket, use_container_width=True, hide_index=True)
+    with tab2:
+        st.header("Atendimentos")
+        df_atendimentos = df_estimativa_atendimentos(df_projetado_e_zig)
+        st.dataframe(df_atendimentos, use_container_width=True, hide_index=True)
+    with tab3:
+        st.header("Faturamento")
+        df_faturamento = df_calculo_faturamento(df_projetado_e_zig)
+        st.dataframe(df_faturamento, use_container_width=True, hide_index=True)
+
+else:
+    st.warning("Selecione um período válido.")
+    st.stop()
+
 
 st.divider()
+
+
+
+
 
 ### Definindo Bases ##
 
@@ -71,13 +97,3 @@ st.divider()
 #              use_container_width=True, hide_index=True)
 
 # st.divider()
-
-tab1, tab2, tab3 = st.tabs(["Ticket Médio", "Atendimentos", "Faturamento"])
-
-with tab1:
-    st.header("Ticket Médio")
-with tab2:
-    st.header("Atendimentos")
-with tab3:
-    st.header("Faturamento")
-
