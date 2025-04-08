@@ -19,11 +19,13 @@ def input_periodo_datas(key):
 
 def input_selecao_casas(key):
     # Filtrando casas
-    df_casas = st.session_state["df_casas"] 
-    casas = df_casas['Casa'].tolist()
-    casa = st.selectbox("Casa", casas, key=key)
+    df_casas = st.session_state["df_casas"]
+    lista_casas_validas = ['Abaru - Priceless', 'Arcos', 'Bar Brahma - Centro', 'Bar Brahma - Granja', 'Bar Léo - Centro', 'Blue Note - São Paulo', 'Blue Note SP (Novo)', 'Edificio Rolim', 'Girondino', 'Girondino - CCBB', 'Jacaré', 'Love Cabaret', 'Notiê - Priceless', 'Orfeu', 'Priceless', 'Riviera Bar', 'Ultra Evil Premium Ltda ','Delivery Bar Leo Centro', 'Delivery Fabrica de Bares', 'Delivery Jacaré', 'Delivery Orfeu']
+    df_validas = pd.DataFrame(lista_casas_validas, columns=['Casa'])
+
+    casa = st.selectbox("Casa", lista_casas_validas,key=key)
     # Definindo um dicionário para mapear nomes de casas a IDs de casas
-    mapeamento_lojas = dict(zip(df_casas["Casa"], df_casas["ID_Casa"]))
+    mapeamento_lojas = dict(zip(df_validas["Casa"], df_casas["ID_Casa"]))
 
     # Obtendo o ID da casa selecionada
     id_casa = mapeamento_lojas[casa]

@@ -27,7 +27,7 @@ date_input = input_periodo_datas("periodo_datas_pag_2")
 id_casa, casa = input_selecao_casas("input_casa_pag_2")
 
 
-if len(date_input) == 2:
+if len(date_input) == 2 and id_casa:
 
     # Convertendo as datas do "date_input" para datetime
     start_date = pd.to_datetime(date_input[0])
@@ -52,8 +52,6 @@ if len(date_input) == 2:
     # Filtrando dataframe pela casa
     df_projetado_e_zig = df_filtrar_casa(df_projetado_e_zig, id_casa)
 
-
-    st.divider()
 
 
     tab1, tab2, tab3 = st.tabs(["Ticket Médio", "Atendimentos", "Faturamento"])

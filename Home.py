@@ -52,6 +52,7 @@ def get_orcamentos():
 def run():
     # Puxando dados
     df_casas = get_casas()
+    st.dataframe(df_casas)
     df_orcamentos = get_orcamentos()   
 
     # Pagina Home
