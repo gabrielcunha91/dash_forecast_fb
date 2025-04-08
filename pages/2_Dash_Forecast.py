@@ -52,21 +52,32 @@ if len(date_input) == 2 and id_casa:
     # Filtrando dataframe pela casa
     df_projetado_e_zig = df_filtrar_casa(df_projetado_e_zig, id_casa)
 
-
-
-    tab1, tab2, tab3 = st.tabs(["Ticket Médio", "Atendimentos", "Faturamento"])
-    with tab1:
-        st.header("Ticket Médio")
-        df_ticket = df_estimativa_ticket(df_projetado_e_zig)
-        st.dataframe(df_ticket, use_container_width=True, hide_index=True)
-    with tab2:
-        st.header("Atendimentos")
-        df_atendimentos = df_estimativa_atendimentos(df_projetado_e_zig)
-        st.dataframe(df_atendimentos, use_container_width=True, hide_index=True)
-    with tab3:
-        st.header("Faturamento")
-        df_faturamento = df_calculo_faturamento(df_projetado_e_zig)
-        st.dataframe(df_faturamento, use_container_width=True, hide_index=True)
+    if df_projetado_e_zig.empty:
+        st.warning("Selecione uma casa válida.")
+    
+    else:
+        tab1, tab2, tab3 = st.tabs(["Ticket Médio", "Atendimentos", "Faturamento"])
+        with tab1:
+            st.header("Ticket Médio")
+            df_ticket = df_estimativa_ticket(df_projetado_e_zig)
+            if df_ticket.empty:
+                st.warning("Não há previsão para o período selecionado")
+            else:
+                st.dataframe(df_ticket, use_container_width=True, hide_index=True)
+        with tab2:
+            st.header("Atendimentos")
+            df_atendimentos = df_estimativa_atendimentos(df_projetado_e_zig)
+            if df_atendimentos.empty:
+                st.warning("Não há previsão para o período selecionado")
+            else:
+                st.dataframe(df_atendimentos, use_container_width=True, hide_index=True)
+        with tab3:
+            st.header("Faturamento")
+            df_faturamento = df_calculo_faturamento(df_projetado_e_zig)
+            if df_faturamento.empty:
+                st.warning("Não há previsão para o período selecionado")
+            else:
+                st.dataframe(df_faturamento, use_container_width=True, hide_index=True)
 
 else:
     st.warning("Selecione um período válido.")

@@ -25,7 +25,7 @@ def input_selecao_casas(key):
 
     casa = st.selectbox("Casa", lista_casas_validas,key=key)
     # Definindo um dicionário para mapear nomes de casas a IDs de casas
-    mapeamento_lojas = dict(zip(df_validas["Casa"], df_casas["ID_Casa"]))
+    mapeamento_lojas = dict(zip(df_casas["Casa"], df_casas["ID_Casa"]))
 
     # Obtendo o ID da casa selecionada
     id_casa = mapeamento_lojas[casa]

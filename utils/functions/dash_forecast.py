@@ -33,28 +33,33 @@ def df_filtrar_casa(df, id_casa):
 
 
 def idx_ultimo_dia_com_ticket_zig(df):
-    return max(df.loc[df['Ticket_Zig'] != 0].index)
+    indices_ticket_zig = df.loc[df['Ticket_Zig'] != 0].index
+
+    if len(indices_ticket_zig) == 0:
+        return None
+    return max(indices_ticket_zig)
 
 
 # Estimativa de Ticket para o primeiro mês
 def df_estimativa_ticket(df):
     idx_ultimo_dia_zig = idx_ultimo_dia_com_ticket_zig(df)
-    ultimo_dia_zig = pd.to_datetime(df.loc[idx_ultimo_dia_com_ticket_zig])
-    idx_primeiro_dia_estimativa = idx_ultimo_dia_zig + 1
-    idx_ultimo_dia_estimativa = idx_primeiro_dia_estimativa + 30
-    
-    # Verifica se o dataframe já possui a coluna 'Estimativa_Ticket'
-    # Se não existir, cria a coluna com valor 0.0 como padrão
-    if not ('Estimativa_Ticket' in df.columns):
-        df['Estimativa_Ticket'] = 0.0
 
-    for i in df.index[idx_primeiro_dia_estimativa:idx_ultimo_dia_estimativa + 1]:
-        # Verifica se o dia já existe no dataframe
-        if i in df.index[idx_primeiro_dia_estimativa:idx_primeiro_dia_estimativa + 7]:
-            # Se o dia está no intervalo, atualiza a estimativa com o ticket médio do dia 7 dias antes e de 14 dias antes
-            df.loc[i, 'Estimativa_Ticket'] = (df.loc[i - 7, 'Ticket_Zig'] + df.loc[i - 14, 'Ticket_Zig']) / 2
+    if idx_ultimo_dia_zig != None:
+        idx_primeiro_dia_estimativa = idx_ultimo_dia_zig + 1
+        idx_ultimo_dia_estimativa = idx_primeiro_dia_estimativa + 30
+        
+        # Verifica se o dataframe já possui a coluna 'Estimativa_Ticket'
+        # Se não existir, cria a coluna com valor 0.0 como padrão
+        if not ('Estimativa_Ticket' in df.columns):
+            df['Estimativa_Ticket'] = 0.0
 
-    df = df[['Casa', 'Data', 'Ticket_Base', 'Ticket_Zig', 'Estimativa_Ticket']]
+        for i in df.index[idx_primeiro_dia_estimativa:idx_ultimo_dia_estimativa + 1]:
+            # Verifica se o dia já existe no dataframe
+            if i in df.index[idx_primeiro_dia_estimativa:idx_primeiro_dia_estimativa + 7]:
+                # Se o dia está no intervalo, atualiza a estimativa com o ticket médio do dia 7 dias antes e de 14 dias antes
+                df.loc[i, 'Estimativa_Ticket'] = (df.loc[i - 7, 'Ticket_Zig'] + df.loc[i - 14, 'Ticket_Zig']) / 2
+
+        df = df[['Casa', 'Data', 'Ticket_Base', 'Ticket_Zig', 'Estimativa_Ticket']]
 
     return df
 
@@ -62,22 +67,23 @@ def df_estimativa_ticket(df):
 # Dataframe das estimativas - Atendimentos (até 1 mês)
 def df_estimativa_atendimentos(df):
     idx_ultimo_dia_zig = idx_ultimo_dia_com_ticket_zig(df)
-    ultimo_dia_zig = pd.to_datetime(df.loc[idx_ultimo_dia_com_ticket_zig])
-    idx_primeiro_dia_estimativa = idx_ultimo_dia_zig + 1
-    idx_ultimo_dia_estimativa = idx_primeiro_dia_estimativa + 30
     
-    # Verifica se o dataframe já possui a coluna 'Estimativa_Ticket'
-    # Se não existir, cria a coluna com valor 0.0 como padrão
-    if not ('Estimativa_Atendimentos' in df.columns):
-        df['Estimativa_Atendimentos'] = 0.0
+    if idx_ultimo_dia_zig != None:
+        idx_primeiro_dia_estimativa = idx_ultimo_dia_zig + 1
+        idx_ultimo_dia_estimativa = idx_primeiro_dia_estimativa + 30
+        
+        # Verifica se o dataframe já possui a coluna 'Estimativa_Ticket'
+        # Se não existir, cria a coluna com valor 0.0 como padrão
+        if not ('Estimativa_Atendimentos' in df.columns):
+            df['Estimativa_Atendimentos'] = 0.0
 
-    for i in df.index[idx_primeiro_dia_estimativa:idx_ultimo_dia_estimativa + 1]:
-        # Verifica se o dia já existe no dataframe
-        if i in df.index[idx_primeiro_dia_estimativa:idx_primeiro_dia_estimativa + 7]:
-            # Se o dia está no intervalo, atualiza a estimativa com o ticket médio do dia 7 dias antes e de 14 dias antes
-            df.loc[i, 'Estimativa_Atendimentos'] = (df.loc[i - 7, 'Atendimentos_Zig'] + df.loc[i - 14, 'Atendimentos_Zig']) / 2
+        for i in df.index[idx_primeiro_dia_estimativa:idx_ultimo_dia_estimativa + 1]:
+            # Verifica se o dia já existe no dataframe
+            if i in df.index[idx_primeiro_dia_estimativa:idx_primeiro_dia_estimativa + 7]:
+                # Se o dia está no intervalo, atualiza a estimativa com o ticket médio do dia 7 dias antes e de 14 dias antes
+                df.loc[i, 'Estimativa_Atendimentos'] = (df.loc[i - 7, 'Atendimentos_Zig'] + df.loc[i - 14, 'Atendimentos_Zig']) / 2
 
-    df = df[['Casa', 'Data', 'Atendimentos_Base', 'Atendimentos_Zig', 'Estimativa_Atendimentos']]
+        df = df[['Casa', 'Data', 'Atendimentos_Base', 'Atendimentos_Zig', 'Estimativa_Atendimentos']]
 
     return df
 
