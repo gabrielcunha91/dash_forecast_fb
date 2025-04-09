@@ -53,6 +53,8 @@ if len(date_input) == 2 and id_casa:
     # Filtrando dataframe pela casa
     df_projetado_e_zig = df_filtrar_casa(df_projetado_e_zig, id_casa)
 
+    df_projetado_e_zig = format_date_brazilian(df_projetado_e_zig, 'Data')
+    
     if df_projetado_e_zig.empty:
         st.warning("Selecione uma casa válida.")
     
@@ -60,7 +62,7 @@ if len(date_input) == 2 and id_casa:
         tab1, tab2, tab3 = st.tabs(["Ticket Médio", "Atendimentos", "Faturamento"])
         with tab1:
             st.header("Ticket Médio")
-            df_ticket = df_estimativa_ticket(df_projetado_e_zig)
+            df_ticket = df_estimativa_ticket_proximo_mes(df_projetado_e_zig)
             if df_ticket.empty:
                 st.warning("Não há previsão para o período selecionado")
             else:

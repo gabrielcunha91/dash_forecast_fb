@@ -1,6 +1,7 @@
 import streamlit as st
 import pandas as pd
-
+import datetime
+from utils.functions.date_functions import *
 
 # Dataframe de Faturamentos - Base (orçado) e Zigpay (realizado)
 def df_calculo_faturamento(df):
@@ -41,25 +42,45 @@ def idx_ultimo_dia_com_ticket_zig(df):
 
 
 # Estimativa de Ticket para o primeiro mês
-def df_estimativa_ticket(df):
+def df_estimativa_ticket_proximo_mes(df):
     idx_ultimo_dia_zig = idx_ultimo_dia_com_ticket_zig(df)
-
+    ultimo_dia_zig = datetime.datetime.strptime(df.loc[idx_ultimo_dia_zig, 'Data'], "%d-%m-%Y")
+    mes_ultimo_dia_zig = ultimo_dia_zig.month
+    
     if idx_ultimo_dia_zig != None:
+
         idx_primeiro_dia_estimativa = idx_ultimo_dia_zig + 1
-        idx_ultimo_dia_estimativa = idx_primeiro_dia_estimativa + 30
-        
-        # Verifica se o dataframe já possui a coluna 'Estimativa_Ticket'
-        # Se não existir, cria a coluna com valor 0.0 como padrão
-        if not ('Estimativa_Ticket' in df.columns):
-            df['Estimativa_Ticket'] = 0.0
+        primeiro_dia = datetime.datetime.strptime(df.loc[idx_primeiro_dia_estimativa, 'Data'], '%d-%m-%Y')
+        mes_primeiro_dia = primeiro_dia.month
 
-        for i in df.index[idx_primeiro_dia_estimativa:idx_ultimo_dia_estimativa + 1]:
-            # Verifica se o dia já existe no dataframe
-            if i in df.index[idx_primeiro_dia_estimativa:idx_primeiro_dia_estimativa + 7]:
-                # Se o dia está no intervalo, atualiza a estimativa com o ticket médio do dia 7 dias antes e de 14 dias antes
-                df.loc[i, 'Estimativa_Ticket'] = (df.loc[i - 7, 'Ticket_Zig'] + df.loc[i - 14, 'Ticket_Zig']) / 2
+        ultimo_dia = get_last_day_of_month(primeiro_dia)
 
-        df = df[['Casa', 'Data', 'Ticket_Base', 'Ticket_Zig', 'Estimativa_Ticket']]
+        print(f"primeiro dia: {mes_primeiro_dia}, mes ultimo dia zig: {mes_ultimo_dia_zig}")
+
+        if mes_primeiro_dia != mes_ultimo_dia_zig:
+            return df
+        else:
+            num_estimativas = ultimo_dia - primeiro_dia.day
+            idx_ultimo_dia_estimativa = idx_primeiro_dia_estimativa + num_estimativas
+            
+            # Verifica se o dataframe já possui a coluna 'Estimativa_Ticket'.
+            if not ('Estimativa_Ticket' in df.columns):
+                df['Estimativa_Ticket'] = 0.0
+
+            estimativas_semana = []
+
+            for i in df.index[idx_primeiro_dia_estimativa:idx_ultimo_dia_estimativa + 1]:
+                # Verifica se o dia é da primeira semana da estimativa
+                if i in df.index[idx_primeiro_dia_estimativa:idx_primeiro_dia_estimativa + 7]:
+                    estimativa_dia = (df.loc[i - 7, 'Ticket_Zig'] + df.loc[i - 14, 'Ticket_Zig']) / 2
+                    df.loc[i, 'Estimativa_Ticket'] = estimativa_dia
+                    estimativas_semana.insert(i % 7, estimativa_dia)
+                # Proximas semanas do mês
+                else:
+                    df.loc[i, 'Estimativa_Ticket'] = estimativas_semana[i % 7]
+
+
+            df = df[['Casa', 'Data', 'Ticket_Base', 'Ticket_Zig', 'Estimativa_Ticket']]
 
     return df
 

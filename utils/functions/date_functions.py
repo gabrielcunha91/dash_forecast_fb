@@ -1,5 +1,6 @@
 import datetime
 import calendar
+import pandas as pd
 
 def get_today():
     return datetime.datetime.now()
@@ -32,3 +33,8 @@ def get_start_of_three_months_ago(today):
         month_sub_3 += 12
         year -= 1
     return datetime.datetime(year, month_sub_3, 1)
+
+def format_date_brazilian(df, date_column):
+  df[date_column] = pd.to_datetime(df[date_column])
+  df[date_column] = df[date_column].dt.strftime('%d-%m-%Y')
+  return df
