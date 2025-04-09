@@ -46,25 +46,31 @@ def dataframe_query(query):
 
 
 
+# GET_CASAS = """
+# WITH empresas_normalizadas AS (
+#   SELECT
+#     CASE 
+#       WHEN ID IN (161, 162) THEN 149
+#       ELSE ID
+#     END AS ID_Casa_Normalizada,
+#     NOME_FANTASIA,
+#     FK_GRUPO_EMPRESA
+#   FROM T_EMPRESAS
+# )
+# SELECT
+#   te.ID_Casa_Normalizada AS ID_Casa,
+#   te2.NOME_FANTASIA AS Casa
+# FROM empresas_normalizadas te
+# LEFT JOIN T_EMPRESAS te2 ON te.ID_Casa_Normalizada = te2.ID
+# WHERE te.FK_GRUPO_EMPRESA = 100
+# GROUP BY te.ID_Casa_Normalizada, te2.NOME_FANTASIA
+# ORDER BY te2.NOME_FANTASIA
+# """
+
 GET_CASAS = """
-WITH empresas_normalizadas AS (
-  SELECT
-    CASE 
-      WHEN ID IN (161, 162) THEN 149
-      ELSE ID
-    END AS ID_Casa_Normalizada,
-    NOME_FANTASIA,
-    FK_GRUPO_EMPRESA
-  FROM T_EMPRESAS
-)
-SELECT
-  te.ID_Casa_Normalizada AS ID_Casa,
-  te2.NOME_FANTASIA AS Casa
-FROM empresas_normalizadas te
-LEFT JOIN T_EMPRESAS te2 ON te.ID_Casa_Normalizada = te2.ID
-WHERE te.FK_GRUPO_EMPRESA = 100
-GROUP BY te.ID_Casa_Normalizada, te2.NOME_FANTASIA
-ORDER BY te2.NOME_FANTASIA
+SELECT te.ID AS ID_Casa,
+te.NOME_FANTASIA AS Casa
+FROM T_EMPRESAS te
 """
 
 GET_ORCAMENTO = """

@@ -7,7 +7,8 @@ from utils.functions.date_functions import *
 from utils.functions.general_functions import *
 from utils.functions.dash_forecast import *
 from utils.queries import *
-
+import warnings
+warnings.filterwarnings("ignore", category=FutureWarning)
 
 st.set_page_config(
     page_title="Dash Forecast",
@@ -48,7 +49,7 @@ if len(date_input) == 2 and id_casa:
     df_projetado_e_zig['Atendimentos_Base'] = df_projetado_e_zig['Atendimentos_Base'].astype(int)
     df_projetado_e_zig['Ticket_Zig'] = df_projetado_e_zig['Ticket_Zig'].astype(float)
     df_projetado_e_zig['Atendimentos_Zig'] = df_projetado_e_zig['Atendimentos_Zig'].astype(int)
-    
+
     # Filtrando dataframe pela casa
     df_projetado_e_zig = df_filtrar_casa(df_projetado_e_zig, id_casa)
 
