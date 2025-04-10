@@ -34,7 +34,8 @@ def get_start_of_three_months_ago(today):
         year -= 1
     return datetime.datetime(year, month_sub_3, 1)
 
-def format_date_brazilian(df, date_column):
+def df_format_date_brazilian(df, date_column):
+  df = df.copy()
   df[date_column] = pd.to_datetime(df[date_column])
   df[date_column] = df[date_column].dt.strftime('%d-%m-%Y')
   return df

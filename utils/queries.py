@@ -96,7 +96,7 @@ ORDER BY to2.ANO, to2.MES, te.ID, to2.FK_CLASSIFICACAO_1, tccg2.DESCRICAO
 
 ## GET_FATURAMENTOS_BASE_E_ZIG - query principal
 @st.cache_data
-def GET_DF_TICKET_BASE_E_ZIGPAY(data_inicio, data_fim):
+def GET_DF_TICKET_BASE_E_ZIGPAY():
     query = f'''
     SELECT 
       tbfp.FK_EMPRESA AS 'Casa',
@@ -108,8 +108,5 @@ def GET_DF_TICKET_BASE_E_ZIGPAY(data_inicio, data_fim):
     FROM
       T_BASE_FATURAMENTO_PROJETADO tbfp 
       LEFT JOIN T_ZIG_TICKET_CLIENTES tztc ON tbfp.FK_EMPRESA = tztc.FK_EMPRESA AND tbfp.DATA_PROJECAO = tztc.DATA_VENDA
-    WHERE
-      cast(tbfp.DATA_PROJECAO  AS date) >= '{data_inicio}' AND
-      cast(tbfp.DATA_PROJECAO  AS date) <= '{data_fim}'
     '''
     return dataframe_query(query)

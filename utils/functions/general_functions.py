@@ -2,7 +2,6 @@ import streamlit as st
 import pandas as pd
 import numpy as np
 from utils.queries import *
-import mysql.connector
 from workalendar.america import Brazil
 import openpyxl
 import os
@@ -59,3 +58,21 @@ def format_columns_percentage(df, numeric_columns):
     if col in df.columns:
       df[col] = df[col].apply(format_percentage)
   return df
+
+
+# Dataframe filtrado pela casa:
+def df_filtrar_casa(df, id_casa):
+    df_filtrado = df[df['Casa'] == id_casa]
+    return df_filtrado
+
+
+def df_filtrar_periodo_data(df, coluna_data, data_inicio, data_fim):
+
+  data_inicio = pd.to_datetime(data_inicio)
+  data_fim = pd.to_datetime(data_fim)
+
+  df = df.copy()
+  
+  df[coluna_data] = pd.to_datetime(df[coluna_data])
+  df_filtrado = df.loc[(df[coluna_data] >= data_inicio) & (df[coluna_data] <= data_fim)]
+  return df_filtrado

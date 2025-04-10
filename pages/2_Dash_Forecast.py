@@ -39,12 +39,12 @@ if len(date_input) == 2 and id_casa:
     end_date_month = end_date.month
 
     # Obtém dataframe principal
-    df_projetado_e_zig = GET_DF_TICKET_BASE_E_ZIGPAY(start_date, end_date)
+    df_projetado_e_zig = GET_DF_TICKET_BASE_E_ZIGPAY()
 
     # Substitui valores None por 0
     df_projetado_e_zig = df_projetado_e_zig.fillna(0)
 
-    # Formata tipo de dados (int e float)
+    # Formata tipo de dados
     df_projetado_e_zig['Ticket_Base'] = df_projetado_e_zig['Ticket_Base'].astype(float)
     df_projetado_e_zig['Atendimentos_Base'] = df_projetado_e_zig['Atendimentos_Base'].astype(int)
     df_projetado_e_zig['Ticket_Zig'] = df_projetado_e_zig['Ticket_Zig'].astype(float)
@@ -52,35 +52,46 @@ if len(date_input) == 2 and id_casa:
 
     # Filtrando dataframe pela casa
     df_projetado_e_zig = df_filtrar_casa(df_projetado_e_zig, id_casa)
-
-    df_projetado_e_zig = format_date_brazilian(df_projetado_e_zig, 'Data')
-    
     if df_projetado_e_zig.empty:
         st.warning("Selecione uma casa válida.")
-    
+
     else:
+        
+        # Funções de estimativas
+        df_estimativa_ticket_proximo_mes(df_projetado_e_zig)
+        df_estimativa_atendimentos_proximo_mes(df_projetado_e_zig)
+        df_calculo_faturamento(df_projetado_e_zig)
+
+        # Filtra pela data selecionada
+        df_projetado_e_zig = df_filtrar_periodo_data(df_projetado_e_zig, 'Data', start_date, end_date)
+        
+        # Formata a data para o formato brasileiro
+        df_projetado_e_zig = df_format_date_brazilian(df_projetado_e_zig, 'Data')
+
         tab1, tab2, tab3 = st.tabs(["Ticket Médio", "Atendimentos", "Faturamento"])
+
         with tab1:
             st.header("Ticket Médio")
-            df_ticket = df_estimativa_ticket_proximo_mes(df_projetado_e_zig)
-            if df_ticket.empty:
+            if df_projetado_e_zig.empty:
                 st.warning("Não há previsão para o período selecionado")
             else:
-                st.dataframe(df_ticket, use_container_width=True, hide_index=True)
+                format_columns_brazilian(df_projetado_e_zig, ['Ticket_Base', 'Ticket_Zig','Estimativa_Ticket'])
+                st.dataframe(df_projetado_e_zig[['Data', 'Ticket_Base', 'Ticket_Zig', 'Estimativa_Ticket']], use_container_width=True, hide_index=True)
+                
         with tab2:
             st.header("Atendimentos")
-            df_atendimentos = df_estimativa_atendimentos(df_projetado_e_zig)
-            if df_atendimentos.empty:
+            if df_projetado_e_zig.empty:
                 st.warning("Não há previsão para o período selecionado")
             else:
-                st.dataframe(df_atendimentos, use_container_width=True, hide_index=True)
+                st.dataframe(df_projetado_e_zig[['Data', 'Atendimentos_Base', 'Atendimentos_Zig', 'Estimativa_Atendimentos']], use_container_width=True, hide_index=True)
+
         with tab3:
             st.header("Faturamento")
-            df_faturamento = df_calculo_faturamento(df_projetado_e_zig)
-            if df_faturamento.empty:
+            if df_projetado_e_zig.empty:
                 st.warning("Não há previsão para o período selecionado")
             else:
-                st.dataframe(df_faturamento, use_container_width=True, hide_index=True)
+                format_columns_brazilian(df_projetado_e_zig, ['Faturamento_Base', 'Faturamento_Zigpay','Estimativa_Faturamento'])
+                st.dataframe(df_projetado_e_zig[['Data', 'Faturamento_Base', 'Faturamento_Zigpay', 'Estimativa_Faturamento']], use_container_width=True, hide_index=True)
 
 else:
     st.warning("Selecione um período válido.")
