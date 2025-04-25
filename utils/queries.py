@@ -45,33 +45,13 @@ def dataframe_query(query):
   return dataframe
 
 
-
-# GET_CASAS = """
-# WITH empresas_normalizadas AS (
-#   SELECT
-#     CASE 
-#       WHEN ID IN (161, 162) THEN 149
-#       ELSE ID
-#     END AS ID_Casa_Normalizada,
-#     NOME_FANTASIA,
-#     FK_GRUPO_EMPRESA
-#   FROM T_EMPRESAS
-# )
-# SELECT
-#   te.ID_Casa_Normalizada AS ID_Casa,
-#   te2.NOME_FANTASIA AS Casa
-# FROM empresas_normalizadas te
-# LEFT JOIN T_EMPRESAS te2 ON te.ID_Casa_Normalizada = te2.ID
-# WHERE te.FK_GRUPO_EMPRESA = 100
-# GROUP BY te.ID_Casa_Normalizada, te2.NOME_FANTASIA
-# ORDER BY te2.NOME_FANTASIA
-# """
-
 GET_CASAS = """
 SELECT te.ID AS ID_Casa,
-te.NOME_FANTASIA AS Casa
+te.NOME_FANTASIA AS Casa,
+te.ID_ZIGPAY AS ID_Zigpay
 FROM T_EMPRESAS te
 """
+
 
 GET_ORCAMENTO = """
 SELECT 
@@ -94,6 +74,7 @@ AND to2.ANO >= 2025
 ORDER BY to2.ANO, to2.MES, te.ID, to2.FK_CLASSIFICACAO_1, tccg2.DESCRICAO 
 """
 
+
 ## GET_FATURAMENTOS_BASE_E_ZIG - query principal
 @st.cache_data
 def GET_DF_TICKET_BASE_E_ZIGPAY():
@@ -108,5 +89,27 @@ def GET_DF_TICKET_BASE_E_ZIGPAY():
     FROM
       T_BASE_FATURAMENTO_PROJETADO tbfp 
       LEFT JOIN T_ZIG_TICKET_CLIENTES tztc ON tbfp.FK_EMPRESA = tztc.FK_EMPRESA AND tbfp.DATA_PROJECAO = tztc.DATA_VENDA
+    '''
+    return dataframe_query(query)
+
+# Dataframe com os valores e quantidades dos itens vendidos pela casa
+@st.cache_data
+def GET_DF_ITENS_VENDIDOS(id_casa):
+    query = f'''
+    SELECT 
+      tiv.EVENT_DATE AS 'Data_Evento',
+      te.NOME_FANTASIA AS 'Casa',
+      tivc.NOME_PRODUTO AS 'Nome_Produto',
+      tiv.UNIT_VALUE AS 'Valor_Unit',
+      tiv.COUNT AS 'Qtde',
+      tiv.DISCOUNT_VALUE AS 'Desconto',
+      tivc2.DESCRICAO AS 'Categoria'
+    FROM  
+      T_ITENS_VENDIDOS tiv LEFT JOIN
+      T_EMPRESAS te ON tiv.LOJA_ID = te.ID_ZIGPAY LEFT JOIN
+      T_ITENS_VENDIDOS_CADASTROS tivc ON tiv.PRODUCT_ID = tivc.ID_ZIGPAY LEFT JOIN
+      T_ITENS_VENDIDOS_CATEGORIAS tivc2 ON tivc.FK_CATEGORIA = tivc2.ID
+    WHERE
+      te.ID = {id_casa}
     '''
     return dataframe_query(query)

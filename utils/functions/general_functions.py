@@ -5,6 +5,7 @@ from utils.queries import *
 from workalendar.america import Brazil
 import openpyxl
 import os
+import re
 
 
 def export_to_excel(df, sheet_name, excel_filename):
@@ -68,11 +69,16 @@ def df_filtrar_casa(df, id_casa):
 
 def df_filtrar_periodo_data(df, coluna_data, data_inicio, data_fim):
 
-  data_inicio = pd.to_datetime(data_inicio)
-  data_fim = pd.to_datetime(data_fim)
+	data_inicio = pd.to_datetime(data_inicio)
+	data_fim = pd.to_datetime(data_fim) + pd.DateOffset(days=1)
 
-  df = df.copy()
-  
-  df[coluna_data] = pd.to_datetime(df[coluna_data])
-  df_filtrado = df.loc[(df[coluna_data] >= data_inicio) & (df[coluna_data] <= data_fim)]
-  return df_filtrado
+	df = df.copy()
+
+	df[coluna_data] = pd.to_datetime(df[coluna_data])
+	df_filtrado = df.loc[(df[coluna_data] >= data_inicio) & (df[coluna_data] < data_fim)]
+
+	return df_filtrado
+
+def is_valid_uuid(uuid):
+    pattern = r'^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$'
+    return bool(re.match(pattern, uuid))

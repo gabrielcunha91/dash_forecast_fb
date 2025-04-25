@@ -39,3 +39,24 @@ def df_format_date_brazilian(df, date_column):
   df[date_column] = pd.to_datetime(df[date_column])
   df[date_column] = df[date_column].dt.strftime('%d-%m-%Y')
   return df
+
+def formata_data_sem_horario(data):
+    if isinstance(data, str):
+        data = datetime.datetime.strptime(data, "%Y-%m-%d")
+    data_formatada = data.strftime("%Y-%m-%d")
+    return data_formatada
+
+def formata_data_horario_zero(data):
+    if isinstance(data, str):
+        data = datetime.datetime.strptime(data, "%Y-%m-%d 00:00:00")
+    data_formatada = data.strftime("%Y-%m-%d 00:00:00")
+    return data_formatada
+
+
+def df_formata_data_horario_zero(df, date_column):
+    df[date_column] = df[date_column].apply(lambda x: formata_data_horario_zero(x))
+    return df
+
+def df_formata_data_sem_horario(df, date_column):
+    df[date_column] = df[date_column].apply(lambda x: formata_data_sem_horario(x))
+    return df

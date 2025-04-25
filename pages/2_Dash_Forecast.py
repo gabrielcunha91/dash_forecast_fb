@@ -7,13 +7,14 @@ from utils.functions.date_functions import *
 from utils.functions.general_functions import *
 from utils.functions.dash_forecast import *
 from utils.queries import *
+from utils.functions.zigpay_api import *
 import warnings
 warnings.filterwarnings("ignore", category=FutureWarning)
 
 st.set_page_config(
     page_title="Dash Forecast",
     page_icon="💰",
-    layout="wide"
+    layout="wide",
 )
 
 if 'loggedIn' not in st.session_state or not st.session_state['loggedIn']:
@@ -25,7 +26,7 @@ st.title("Dash Forecast")
 date_input = input_periodo_datas("periodo_datas_pag_2")
 
 # Seleção da casa
-id_casa, casa = input_selecao_casas("input_casa_pag_2")
+id_casa, casa, id_zigpay = input_selecao_casas("input_casa_pag_2")
 
 
 if len(date_input) == 2 and id_casa:
@@ -41,14 +42,30 @@ if len(date_input) == 2 and id_casa:
     # Obtém dataframe principal
     df_projetado_e_zig = GET_DF_TICKET_BASE_E_ZIGPAY()
 
+    # Adiciona coluna Num_Checkins da API
+    df_atendimentos = get_num_atendimentos_zigpay("2025-01-01", formata_data_sem_horario(get_today()), id_zigpay)
+    df_projetado_e_zig = pd.merge(df_projetado_e_zig, df_atendimentos, on='Data', how='left')
+   
+    # Adiciona coluna Faturamento_Liquido da API
+    df_faturamentos_zig = df_faturamento_por_dia(id_casa)
+    df_faturamentos_zig = df_formata_data_horario_zero(df_faturamentos_zig, 'Data_Evento')
+    df_faturamentos_zig['Data_Evento'] = pd.to_datetime(df_faturamentos_zig['Data_Evento'])
+    df_projetado_e_zig = pd.merge(df_projetado_e_zig, df_faturamentos_zig, right_on='Data_Evento', left_on='Data', how='left')
+    
+    # Calcula Ticket Médio com base em Num_Checkins e Faturamento_Liquido
+    df_faturamentos_zig = df_calculo_ticket_medio(df_projetado_e_zig, 'Valor_Liquido', 'Num_Checkins')
+
     # Substitui valores None por 0
     df_projetado_e_zig = df_projetado_e_zig.fillna(0)
 
     # Formata tipo de dados
-    df_projetado_e_zig['Ticket_Base'] = df_projetado_e_zig['Ticket_Base'].astype(float)
-    df_projetado_e_zig['Atendimentos_Base'] = df_projetado_e_zig['Atendimentos_Base'].astype(int)
-    df_projetado_e_zig['Ticket_Zig'] = df_projetado_e_zig['Ticket_Zig'].astype(float)
-    df_projetado_e_zig['Atendimentos_Zig'] = df_projetado_e_zig['Atendimentos_Zig'].astype(int)
+    tipos_de_dados = {
+        'Ticket_Base': float,
+        'Atendimentos_Base': int,
+        'Ticket_Zig': float,
+        'Atendimentos_Zig': int
+    }
+    df_projetado_e_zig = df_projetado_e_zig.astype(tipos_de_dados, errors='ignore')
 
     # Filtrando dataframe pela casa
     df_projetado_e_zig = df_filtrar_casa(df_projetado_e_zig, id_casa)
@@ -75,15 +92,15 @@ if len(date_input) == 2 and id_casa:
             if df_projetado_e_zig.empty:
                 st.warning("Não há previsão para o período selecionado")
             else:
-                format_columns_brazilian(df_projetado_e_zig, ['Ticket_Base', 'Ticket_Zig','Estimativa_Ticket'])
-                st.dataframe(df_projetado_e_zig[['Data', 'Ticket_Base', 'Ticket_Zig', 'Estimativa_Ticket']], use_container_width=True, hide_index=True)
+                format_columns_brazilian(df_projetado_e_zig, ['Ticket_Base', 'Ticket_Medio_Faturamento','Estimativa_Ticket'])
+                st.dataframe(df_projetado_e_zig[['Data', 'Ticket_Base', 'Ticket_Medio_Faturamento', 'Estimativa_Ticket']], use_container_width=True, hide_index=True)
                 
         with tab2:
             st.header("Atendimentos")
             if df_projetado_e_zig.empty:
                 st.warning("Não há previsão para o período selecionado")
             else:
-                st.dataframe(df_projetado_e_zig[['Data', 'Atendimentos_Base', 'Atendimentos_Zig', 'Estimativa_Atendimentos']], use_container_width=True, hide_index=True)
+                st.dataframe(df_projetado_e_zig[['Data', 'Atendimentos_Base', 'Num_Checkins', 'Estimativa_Atendimentos']], use_container_width=True, hide_index=True)
 
         with tab3:
             st.header("Faturamento")
